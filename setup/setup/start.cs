@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 using System.Collections;
 using System.Diagnostics;
@@ -16,45 +15,41 @@ namespace setup
 {
     public partial class start : Form
     {
-        #region 变量区域
-        //消息标记，加载页到主页标记
+        #region declare
         bool startFlag = false;
         int timerCount = 1;
         #endregion
 
-        #region 启动页初始化
+        #region Start page initialization
         public start()
         {
-
             InitializeComponent();
-
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            progressBar1.Minimum = 0;//设置ProgressBar组件最小值为0
-            progressBar1.Maximum = 10;//Maximum最大值为10
-            progressBar1.MarqueeAnimationSpeed = 50;//设定进度快在进度栏中移动的时间段
+            progressBar1.Minimum = 0;//Set the ProgressBar component to a minimum value of 0
+            progressBar1.Maximum = 10;//Maximum value is 10
+            progressBar1.MarqueeAnimationSpeed = 50;//Set the time period for fast progress to move in the progress bar
 
             string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
 
             if (!Directory.Exists(currentDir + "baseDir"))
             {
-               
-                // 开启定时器
+                // On timer
                 timer1.Enabled = true;
                 timer1.Start();
-                // 将loadData中的委托绑定主程序中的通知结束的方法
+                // A method that binds a delegate in loadData to the end of a notification in the main program
                 LoadData loadData = new LoadData();
                 loadData.sendEndMes += tellEnd;
-                // 开启线程处理数据
+                // Start the thread to process the data
                 ParameterizedThreadStart loadThread = new ParameterizedThreadStart(loadData.load);
                 Thread thread = new Thread(loadThread);
                 thread.IsBackground = true;
                 thread.Start();
-                WriteLogToFile("解压线程开启");
+                WriteLogToFile("The unzip thread opens");
             }
         }
         #endregion
 
-        #region 时钟计数器
+        #region Clock counter
         private void timer1_Tick(object sender, EventArgs e)
         {
             if (timerCount % 6 == 1)
@@ -82,22 +77,22 @@ namespace setup
                 label1.Text = "initializing......";
             }
             timerCount++;
+            //Delegate messaging flags to startFlag
             if (startFlag)
             {
-                WriteLogToFile("解压线程结束");
-                //定时时间到了处理事件
-                this.Hide();//隐藏本窗体
-                menu MainForm = new menu();//实例化一个MainForm对象
-                MainForm.Show();//显示窗体
-                timer1.Stop();//定制定时器
+                WriteLogToFile("The decompression thread ends");
+                this.Hide();//Hide this form
+                menu MainForm = new menu();//Instantiate a MainForm object
+                MainForm.Show();//According to the form
+                timer1.Stop();//Custom timer
              }
         }
         #endregion 
 
-        #region 处理结束消息
+        #region End of processing message
         /// <summary>
-        /// 通知load数据结束的方法
-        /// 此方法仍为子线程中的方法，因为被子线程中的委托调用
+        /// Method to notify load of the end of data
+        /// This method is still a method in the child thread because the delegate is called in the child thread
         /// </summary>
         /// <param name="mes"></param>
         private void tellEnd(string mes)
@@ -106,7 +101,7 @@ namespace setup
         }
         #endregion
 
-        #region 写log
+        #region write log
 
         public static void WriteLogToFile(string msg)
         {

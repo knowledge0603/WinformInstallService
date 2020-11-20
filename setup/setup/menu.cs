@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using ICSharpCode.SharpZipLib.Zip;
 using System.IO;
 using System.Diagnostics;
 using System.Net;
@@ -8,74 +7,112 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using System.Linq;
 using System.Collections;
+using System.Threading.Tasks;
+using System.Net.Sockets;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.ServiceProcess;
 
 namespace setup
 {
     public partial class menu : Form
     {
+        #region  declare
+        //Determine if the basedir folder exists
+        static string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
 
-        #region 初始化
+
+        #endregion
+
+        #region initialize
         public menu()
         {
 
             InitializeComponent();
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            //判断baseDir文件夹是否存在
-            string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
             if (Directory.Exists(currentDir + "baseDir"))
             {
-                //判断java环境是否正常
-                if (JreInstalled())
-                {
-                    javaLabel.Text = "正常";
-                }
-                else
-                {
-                    javaLabel.Text = "异常";
-                }
-                //打开frp通道
+                //frp
                 if (OpenChannel())
                 {
-                    frpLabel.Text = "正常";
+                    frpLabel.Text = "normal";
                 }
                 else
                 {
-                    frpLabel.Text = "异常";
+                    frpLabel.Text = "abnormal";
                 }
-                //启动zookeeper
-                if (StartZooKeeper())
+                //zookeeper
+                if (ZooKeeperServerStatus())
                 {
-                    zookeeperLabel.Text = "正常";
+                    zookeeperLabel.Text = "normal";
                 }
                 else
                 {
-                    zookeeperLabel.Text = "异常";
+                    zookeeperLabel.Text = "abnormal";
                 }
-                //启动kafka
-                if (StartKafka())
+                if (KafkaServiceStatus())
                 {
-                    kafkaLabel.Text = "正常";
-                    //kafka创建主题
-                    //"kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic topic1"
-                    //线程中启动命令防止界面卡死
+                    kafkaLabel.Text = "normal";
+                    //kafka create topic
                     Thread thKafkaThread = new Thread(() => KafkaCreatTopicThread());
                     thKafkaThread.IsBackground = true;
                     thKafkaThread.Start();
                 }
                 else
                 {
-                    kafkaLabel.Text = "异常";
+                    kafkaLabel.Text = "abnormal";
+                }
+                if (MysqlServiceStatus())
+                {
+                    mysqlLabel.Text = "normal";
+                }
+                else
+                {
+                    mysqlLabel.Text = "abnormal";
                 }
 
-                //启动本地tomcat mysql
-                //button_start.Visible = false;
+                string[] strArr = { "FrpWindowsService", "ZookeeperWindowsService", "KafkaWindowsService", "MysqlWindowsService" };
+                //install win service
+                foreach (string str in strArr)
+                {
+                    if (this.IsServiceExisted(str))
+                    {
+                        this.ServiceStart(str);
+                    }
+                }
+                timer1.Start();
             }
-
-
         }
         #endregion
 
-        #region 提醒窗
+        #region service start
+        //start service 
+        private void ServiceStart(string serviceName)
+        {
+            using (ServiceController control = new ServiceController(serviceName))
+            {
+                if (control.Status == ServiceControllerStatus.Stopped)
+                {
+                    control.Start();
+                }
+            }
+        }
+
+        private bool IsServiceExisted(string serviceName)
+        {
+            ServiceController[] services = ServiceController.GetServices();
+            foreach (ServiceController sc in services)
+            {
+                if (sc.ServiceName.ToLower() == serviceName.ToLower())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        #endregion
+
+        #region notifyIcon
 
         private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
         {
@@ -94,193 +131,46 @@ namespace setup
         }
         #endregion
 
-        #region java环境监测
-        public static bool JreInstalled()
+        #region frp channel
+
+        public bool OpenChannel()
         {
-            WriteLogToFile(" JreInstalled  开始");
-            string strDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-            Process proc = new Process();
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.RedirectStandardInput = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.Start();
-            proc.StandardInput.WriteLine("cd " + strDirectory + "baseDir\\tools\\");
-            proc.StandardInput.WriteLine("getjavastatus.bat ");
-            //ExecuteCommand("getjavastatus.bat ");
-            proc.StandardInput.WriteLine("exit");
-            proc.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
-               MessageBox.Show("output>>" + e.Data);
-            proc.BeginOutputReadLine();
 
-            proc.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-                MessageBox.Show("error>>" + e.Data);
-            proc.BeginErrorReadLine();
+            Ini readIdent = new Ini();
+            readIdent.LoadFromFile(currentDir + "baseDir\\frp\\frpc.ini");
+            string ip = readIdent.ReadIdent("common", "server_addr","");
+            string port = readIdent.ReadIdent("common", "server_port", "");
+            return FrpPortInUse(ip, port);
 
-            proc.WaitForExit();
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-                if (line.Contains("Java environment normal"))
-                {
-                    return true;
-                }
-            }
-            return false;
-
-
-        }
-
-        static void ExecuteCommand(string command)
-        {
-            string strDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-            var processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardOutput = true;
-
-           
-
-            var process = Process.Start(processInfo);
-           // process.StartInfo.RedirectStandardError = true;
-          //  process.StartInfo.RedirectStandardInput = true;
-           // process.StartInfo.RedirectStandardOutput = true;
-          //  process.StandardInput.WriteLine("cd " + strDirectory + "baseDir\\tools\\");
-           // process.StandardInput.WriteLine("getjavastatus.bat ");
-            process.OutputDataReceived += (object sender, DataReceivedEventArgs e) =>
-                MessageBox.Show("output>>" + e.Data);
-            process.BeginOutputReadLine();
-
-            process.ErrorDataReceived += (object sender, DataReceivedEventArgs e) =>
-                MessageBox.Show("error>>" + e.Data);
-            process.BeginErrorReadLine();
-
-            process.WaitForExit();
-
-            MessageBox.Show("ExitCode: {0}"+ process.ExitCode);
-            process.Close();
         }
         #endregion
 
-        #region frp通道开启,动态指定端口号
-
-        public static bool OpenChannel()
+        #region  zookeeper  service status
+        public static bool ZooKeeperServerStatus()
         {
-            WriteLogToFile("OpenChannel 开始");
-            //1、查找peer节点，该节点有流量服务。
-            //2、查找到节点后向该节点peer发送消息，请求流量
-            //3、服务端peer打开通道
-            //4、客户端peer连接3处理打开的通道
-            //1、判断映射后的外网网址是否可以访问
-            //     可以访问的话通道已经开启
-            //     不可以访问的话，重新开启通道
-            string strDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-            Process proc = new Process();
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.RedirectStandardInput = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.Start();
-            proc.StandardInput.WriteLine("cd " + strDirectory + "baseDir\\frp");
-            proc.StandardInput.WriteLine("frp.bat ");
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-                if (line.Contains("success"))
-                {
-                    return true;
-                }
-                if (line.Contains("failed"))
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-        #endregion
-                     
-        #region 启动 zookeeper 线程
-        public static bool StartZooKeeper()
-        {
-            WriteLogToFile("StartZooKeeper 开始");
-            //线程中启动命令防止界面卡死
-            Thread thZookeeperThread = new Thread(() => ZookeeperThread());
-            thZookeeperThread.IsBackground = true;
-            thZookeeperThread.Start();
+            WriteLogToFile("StartZooKeeper start");
             return PortInUse(2181);
         }
         #endregion
 
-        #region 启动 kafka 线程
-        public static bool StartKafka()
+        #region  kafka status
+        public static bool KafkaServiceStatus()
         {
-            WriteLogToFile("StartKafka 开始");
-            //线程中启动命令防止界面卡死
-            Thread thKafkaThread = new Thread(() => KafkaThread());
-            thKafkaThread.IsBackground = true;
-            thKafkaThread.Start();
+            WriteLogToFile("KafkaServiceStatus  methods start ");
             return PortInUse(9092);
-            
+
         }
         #endregion
-
-        #region  启动 zookeeper
-        public static void ZookeeperThread()
+		#region  mysql status
+        public static bool MysqlServiceStatus()
         {
-            string strDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
-            Process proc = new Process();
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.RedirectStandardInput = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.Start();
-            proc.StandardInput.WriteLine("cd " + strDirectory + "baseDir\\zookeeper\\bin");
-            proc.StandardInput.WriteLine("zkServer.cmd ");
-            proc.WaitForExit();
+            WriteLogToFile("MysqlServiceStatus  methods start ");
+            return PortInUse(3306);
+
         }
         #endregion
 
-        #region 启动  kafka
-        public static void KafkaThread()
-        {
-            WriteLogToFile("KafkaThread 开始");
-            string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            Process proc = new Process();
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.RedirectStandardInput = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.Start();
-            //启动kafka服务
-            string volume = System.Windows.Forms.Application.StartupPath.Substring(0, System.Windows.Forms.Application.StartupPath.IndexOf(":"));
-            proc.StandardInput.WriteLine("cd " + volume+":\\kafka\\bin\\windows");
-            proc.StandardInput.WriteLine("kafka-server-start.bat server.properties");
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                string line = proc.StandardOutput.ReadLine();
-                if (line.Contains("success"))
-                {
-                   // return true;
-                }
-                if (line.Contains("failed"))
-                {
-                   // return false;
-                }
-            }
-            proc.WaitForExit();
-        }
-        #endregion
-
-        #region kafka 创建主题
+        #region kafka create topic
         public static void KafkaCreatTopicThread()
         {
             WriteLogToFile("KafkaCreatTopicThread 开始");
@@ -301,10 +191,10 @@ namespace setup
         }
         #endregion
 
-        #region PortInUse 判断端口是否被占用
+        #region PortInUse
         public static bool PortInUse(int port)
         {
-            WriteLogToFile("PortInUse 开始");
+            WriteLogToFile("PortInUse start");
             bool inUse = false;
             IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
             IPEndPoint[] ipEndPoints = ipProperties.GetActiveTcpListeners();
@@ -320,21 +210,22 @@ namespace setup
         }
         #endregion
 
-        #region  关闭退出
+        #region  close
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Application.Exit();//退出应用程序
+
+
         }
         #endregion
 
-        #region 写log
+        #region write log
 
         public static void WriteLogToFile(string msg)
         {
             string strDic = System.AppDomain.CurrentDomain.BaseDirectory;
             System.DateTime currentTime = System.DateTime.Now;
 
-            if (!Directory.Exists(strDic + "\\logFiles\\" + DateTime.Now.ToString("yyyy-MM-dd")))  //不存在则创建
+            if (!Directory.Exists(strDic + "\\logFiles\\" + DateTime.Now.ToString("yyyy-MM-dd")))
             {
                 Directory.CreateDirectory(strDic + "\\logFiles\\" + DateTime.Now.ToString("yyyy-MM-dd"));
             }
@@ -361,6 +252,105 @@ namespace setup
             }
         }
         #endregion
+
+        #region The delayed method is not blocked, and Thread Sleep will block and render the interface unreadable
+        public static void Delay(int mm)
+        {
+            DateTime current = DateTime.Now;
+            while (current.AddMilliseconds(mm) > DateTime.Now)
+            {
+                Application.DoEvents();
+            }
+            return;
+        }
+        #endregion
+
+        #region timer  monitor  service
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if (ZooKeeperServerStatus())
+            {
+                zookeeperLabel.Text = "normal";
+            }
+            else
+            {
+                zookeeperLabel.Text = "abnormal";
+                if (this.IsServiceExisted("ZookeeperWindowsService"))
+                {
+                    this.ServiceStart("ZookeeperWindowsService");
+                } 
+            }
+            if (KafkaServiceStatus())
+            {
+                kafkaLabel.Text = "normal";
+            }
+            else
+            {
+                kafkaLabel.Text = "abnormal";
+                if (this.IsServiceExisted("KafkaWindowsService"))
+                {
+                    using (ServiceController control = new ServiceController("KafkaWindowsService"))
+                    {
+                        if (control.Status == ServiceControllerStatus.Running)
+                        {
+                            control.Stop();
+                        }
+                        if (control.Status == ServiceControllerStatus.Stopped)
+                        {
+                            control.Start();
+                            Thread.Sleep(7000);
+                        }
+                    }
+                } 
+            }
+        }
+        #endregion 
+
+        #region Close the form hidden to the tray
+        private void menu_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //Notice that the Reason for the close event comes from the form button, otherwise you cannot exit when you exit with the menu!
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                e.Cancel = true;    //Cancel the closed Window event
+                this.WindowState = FormWindowState.Minimized;    //Causes the window to shrink towards the lower right corner when closed
+                notifyIcon1.Visible = true;
+                this.Hide();
+                return;
+            }
+        }
+        #endregion 
+
+        #region Right-click tray exit
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+        #endregion
+
+
+        public static bool FrpPortInUse(string remoteIp,string port)
+        {
+            bool status = false;
+            if (!string.IsNullOrEmpty(port))
+            {
+                IPAddress ip = IPAddress.Parse(remoteIp);
+                IPEndPoint point = new IPEndPoint(ip, int.Parse(port));
+                try
+                {
+                    TcpClient tcp = new TcpClient();
+                    tcp.Connect(point);
+                    status = true;
+                    WriteLogToFile(remoteIp + port + " is open ");
+                }
+                catch (Exception ex)
+                {
+                    status = false;
+                    WriteLogToFile(ex.ToString());
+                }
+            }
+            return status;
+        }
 
     }
 }
