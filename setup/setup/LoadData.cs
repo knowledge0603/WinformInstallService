@@ -2,29 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.SharpZipLib.Zip;
 using System.Threading;
 using System.IO;
 using System.Collections;
 using System.Diagnostics;
+using System.ComponentModel;
+using System.Configuration.Install;
+using System.Data;
+using System.Drawing;
+using System.ServiceProcess;
+
 
 namespace setup
 {
     class LoadData
     {
-        #region 声明区域
-        // 声明一个返回结束信息给主线程的委托
+        #region Declarative region
+        //Declares a delegate that returns the end information to the main thread
         public delegate void SendEndMessage(string mes);
         public SendEndMessage sendEndMes;
+        string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
         #endregion
 
-        #region 复制文件夹
+        #region Copy folders
         /// <summary>
-        /// 文件夹下所有内容copy
+        /// Copy everything under the folder
         /// </summary>
-        /// <param name="SourcePath">要Copy的文件夹</param>
-        /// <param name="DestinationPath">要复制到哪个地方</param>
-        /// <param name="overwriteexisting">是否覆盖</param>
+        /// <param name="SourcePath">The folder to Copy</param>
+        /// <param name="DestinationPath">Where do I copy it</param>
+        /// <param name="overwriteexisting">Whether or not covered</param>
         /// <returns></returns>
         private static bool CopyDirectory(string SourcePath, string DestinationPath, bool overwriteexisting)
         {
@@ -61,62 +67,51 @@ namespace setup
         }
         #endregion 
 
-        #region 解压与初始化配置
+        #region Unzip and initialize configuration
         /// <summary>
-        /// 模拟一个处理时间很长的方法
+        /// load
         /// </summary>
-        public void load(object obj)
+        public void Load(object obj)
         {
-            // 当前线程sleep 10秒
-            string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-            using (ZipInputStream s = new ZipInputStream(File.OpenRead(currentDir + "baseDir.zip")))
-            {
-                ZipEntry theEntry;
-                while ((theEntry = s.GetNextEntry()) != null)
-                {
-                    string directoryName = Path.GetDirectoryName(theEntry.Name);
-                    string fileName = Path.GetFileName(theEntry.Name);
+            Process process = new Process();
+            process.StartInfo.FileName = "cmd.exe";
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
+            process.StandardInput.WriteLine("7z.exe x baseDir.zip  -aoa");
+            process.StandardInput.WriteLine("exit");
+            process.StandardOutput.ReadToEnd();// Wait until the compression is complete before you can grab the compressed file
+            process.Close();
 
-                    if (directoryName.Length > 0)
-                    {
-                        Directory.CreateDirectory(directoryName);
-                    }
+            //View the system's 64-bit markup
+            bool systemType = Environment.Is64BitOperatingSystem;
 
-                    if (fileName != String.Empty)
-                    {
-                        using (FileStream streamWriter = File.Create(theEntry.Name))
-                        {
-                            int size = 1024*1024*7;
-                            byte[] data = new byte[1024*1024*7];
-                            while (true)
-                            {
-                                size = s.Read(data, 0, data.Length);
-                                if (size > 0)
-                                {
-                                    streamWriter.Write(data, 0, size);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            //将kafka文件移动到盘符的根目录，kafka执行启动时所在路径太长，无法启动
+            //Move kafka file to the root directory of the disk. Kafka will boot in a path that is too long to boot
             string volume = System.Windows.Forms.Application.StartupPath.Substring(0, System.Windows.Forms.Application.StartupPath.IndexOf(":"));
-
+            //Kafka does not support long path execution so do the following
             CopyDirectory(currentDir + "baseDir\\kafka", volume + ":\\kafka",true);
+            //The Kafka JDK path cannot contain Chinese and Spaces, so do the following
+            CopyDirectory(currentDir + "baseDir\\openjdk", volume + ":\\openjdk", true);
+            if (!systemType)//32bit 
+            {
+                //The Kafka JDK path cannot contain Chinese and Spaces, so do the following
+                CopyDirectory(currentDir + "baseDir\\jre32bit", volume + ":\\jre32bit", true);
+            }
             ArrayList batPathArray = new ArrayList();
             batPathArray.Add(volume + ":\\kafka\\bin\\windows\\" + "kafka-run-class.bat");
             batPathArray.Add(currentDir + "baseDir\\zookeeper\\bin\\zkEnv.cmd");
             batPathArray.Add(currentDir + "baseDir\\tools\\unzip.bat");
             batPathArray.Add(currentDir + "baseDir\\tools\\getjavastatus.bat");
             batPathArray.Add(currentDir + "baseDir\\frp\\frp.bat");
-            //查看系统64位标记
-            bool systemType = Environment.Is64BitOperatingSystem;
+            batPathArray.Add(currentDir + "baseDir\\frp32bit\\frp.bat");
+            batPathArray.Add(currentDir + "baseDir\\mysql-8.0.22-winx64\\mysql_init_db.bat");
+            batPathArray.Add(currentDir + "baseDir\\mysql-8.0.22-winx64\\my.ini");
+            batPathArray.Add(currentDir + "baseDir\\zookeeper\\conf\\zoo.cfg");
+            batPathArray.Add(currentDir + "baseDir\\kafka\\config\\server.properties");
+            
             for (int i = 0; i < batPathArray.Count; i++)
             {
                 string path = batPathArray[i].ToString();
@@ -124,30 +119,163 @@ namespace setup
                 FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read);
                 StreamReader streamReader = new StreamReader(fileStream);
                 content = streamReader.ReadToEnd();
-                //64位系统
+                //64bit
                 if (systemType)
                 {
-                    content = content.Replace("#@replaceString@#", currentDir + "openjdk");
+                    //java_home set 
+                    content = content.Replace("#@replaceString@#", volume + ":\\openjdk");
+                    //mysql set 
+                    if (path.IndexOf("mysql")!=-1)
+                    {
+                        string tempString = currentDir + "baseDir";
+                        string replaceString= tempString.Replace("\\", "\\\\");
+                        //Slashes are replaced with double backslashes
+                        content = content.Replace("#@replaceStringMySql@#", replaceString);
+                    }
+                    //zookeeper data dir set 
+                    if (path.IndexOf("zookeeper") != -1)
+                    {
+                        content = content.Replace("#@replaceStringZookeeperDataDir@#", currentDir + "baseDir\\zookeeper\\conf\\data");
+                    }
+                    //kafka log dir set 
+                    if (path.IndexOf("kafka") != -1)
+                    {
+                        content = content.Replace("#@replaceStringKafkaLogDir@#", currentDir + "baseDir\\kafka\\logs");
+                    }
                 }
-                else //32位系统
+                else //32bit
                 {
-                    content = content.Replace("#@replaceString@#", currentDir + "baseDir\\jre32bit");
+                    content = content.Replace("#@replaceString@#", volume  +":\\jre32bit");
                 }
-                
-                content = content.Replace("#@zipFilePath@#", currentDir + "baseDir.zip");
+
                 streamReader.Close();
                 fileStream.Close();
-                //删除旧文件写入新文件
+                //Delete old files write new files
                 File.Delete(path);
-                FileStream fileStreamNew = new FileStream(path, FileMode.Create, FileAccess.Write);//创建写入文件 
-                StreamWriter streamWriterNew = new StreamWriter(fileStreamNew);
+                FileStream fileStreamNew = new FileStream(path, FileMode.Create, FileAccess.Write);//Create write file
+                StreamWriter streamWriterNew = new StreamWriter(fileStreamNew, Encoding.Default);
                 streamWriterNew.WriteLine(content);
                 streamWriterNew.Close();
-                streamWriterNew.Close();
             }
-            // 调用通知主程序处理结束的委托，并可以传递参数
-            sendEndMes("处理结束");
+
+            Dictionary<string, string> winServiceList = new Dictionary<string, string>();
+            winServiceList.Add("FrpWindowsService", AppDomain.CurrentDomain.BaseDirectory + "\\FrpWindowsService.exe");
+            winServiceList.Add("ZookeeperWindowsService", AppDomain.CurrentDomain.BaseDirectory + "\\ZookeeperWindowsService.exe");
+            winServiceList.Add("KafkaWindowsService", volume + ":\\kafka\\bin\\windows\\" + "KafkaWindowsService.exe");
+           //install win service
+            foreach (var item in winServiceList)
+            {
+                if (this.IsServiceExisted(item.Key))
+                {
+                    this.UninstallService(item.Value);
+                }
+                this.InstallService(item.Value);
+                if (this.IsServiceExisted(item.Key))
+                {
+                    this.ServiceStart(item.Key); 
+                }
+            }
+            //install mysql service and  start mysql service 
+            Process proc = new Process();
+            proc.StartInfo.CreateNoWindow = true;
+            proc.StartInfo.FileName = "cmd.exe";
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.RedirectStandardError = true;
+            proc.StartInfo.RedirectStandardInput = true;
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.Start();
+            proc.StandardInput.WriteLine("cd " + currentDir + "baseDir\\mysql-8.0.22-winx64\\");
+            proc.StandardInput.WriteLine("mysql_init_db.bat ");
+            proc.StandardInput.WriteLine("exit");
+            proc.StandardOutput.ReadToEnd();
+            proc.Close();
+            // delegate send message
+            sendEndMes("process end");
+
         }
         #endregion
+
+        #region service process start stop install  delete
+        private bool IsServiceExisted(string serviceName)
+        {
+            ServiceController[] services = ServiceController.GetServices();
+            foreach (ServiceController sc in services)
+            {
+                if (sc.ServiceName.ToLower() == serviceName.ToLower())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        //安装服务
+        private void InstallService(string serviceFilePath)
+        {
+            using (AssemblyInstaller installer = new AssemblyInstaller())
+            {
+                installer.UseNewContext = true;
+                installer.Path = serviceFilePath;
+                IDictionary savedState = new Hashtable();
+                installer.Install(savedState);
+                installer.Commit(savedState);
+            }
+        }
+        //卸载服务
+        private void UninstallService(string serviceFilePath)
+        {
+            using (AssemblyInstaller installer = new AssemblyInstaller())
+            {
+                installer.UseNewContext = true;
+                installer.Path = serviceFilePath;
+                installer.Uninstall(null);
+            }
+        }
+        //启动服务
+        private void ServiceStart(string serviceName)
+        {
+            using (ServiceController control = new ServiceController(serviceName))
+            {
+                if (control.Status == ServiceControllerStatus.Stopped)
+                {
+                    control.Start();
+                }
+            }
+        }
+
+        //停止服务
+        private void ServiceStop(string serviceName)
+        {
+            using (ServiceController control = new ServiceController(serviceName))
+            {
+                if (control.Status == ServiceControllerStatus.Running)
+                {
+                    control.Stop();
+                }
+            }
+        }
+        #endregion
+
+        #region ReplaceLineInFile
+        private static void ReplaceLineInFile(string filename, string lineToMatch, string replaceWith)
+        {
+            var fileToOutput = new List<string>();
+            using (var inputStream = File.OpenRead(filename))
+            using (var inputReader = new StreamReader(inputStream))
+            {
+                string currentLine;
+                while ((currentLine = inputReader.ReadLine()) != null)
+                {
+                    if (currentLine.Contains(lineToMatch))
+                    {
+                        currentLine =currentLine.Replace(lineToMatch, replaceWith);
+                    }
+                    fileToOutput.Add(currentLine);
+                }
+            }
+
+            File.WriteAllLines(filename, fileToOutput, Encoding.GetEncoding("gb2312"));
+        }
+       #endregion 
+
     }
 }
