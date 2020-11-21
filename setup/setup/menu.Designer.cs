@@ -30,12 +30,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(menu));
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.javaLabel = new System.Windows.Forms.Label();
             this.frpLabel = new System.Windows.Forms.Label();
             this.zookeeperLabel = new System.Windows.Forms.Label();
             this.kafkaLabel = new System.Windows.Forms.Label();
@@ -48,74 +42,17 @@
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // button1
-            // 
-            this.button1.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.button1.Location = new System.Drawing.Point(96, 52);
-            this.button1.Margin = new System.Windows.Forms.Padding(2);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(56, 18);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "java";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
-            // button2
-            // 
-            this.button2.Location = new System.Drawing.Point(96, 151);
-            this.button2.Margin = new System.Windows.Forms.Padding(2);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(68, 18);
-            this.button2.TabIndex = 0;
-            this.button2.Text = "zookeeper";
-            this.button2.UseVisualStyleBackColor = true;
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(96, 105);
-            this.button3.Margin = new System.Windows.Forms.Padding(2);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(56, 18);
-            this.button3.TabIndex = 0;
-            this.button3.Text = "frp";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(96, 201);
-            this.button4.Margin = new System.Windows.Forms.Padding(2);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(56, 18);
-            this.button4.TabIndex = 0;
-            this.button4.Text = "kafka";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(96, 254);
-            this.button5.Margin = new System.Windows.Forms.Padding(2);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(56, 18);
-            this.button5.TabIndex = 0;
-            this.button5.Text = "mysql";
-            this.button5.UseVisualStyleBackColor = true;
-            // 
-            // javaLabel
-            // 
-            this.javaLabel.AutoSize = true;
-            this.javaLabel.Location = new System.Drawing.Point(340, 58);
-            this.javaLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.javaLabel.Name = "javaLabel";
-            this.javaLabel.Size = new System.Drawing.Size(23, 12);
-            this.javaLabel.TabIndex = 1;
-            this.javaLabel.Text = "...";
             // 
             // frpLabel
             // 
             this.frpLabel.AutoSize = true;
-            this.frpLabel.Location = new System.Drawing.Point(340, 111);
+            this.frpLabel.Location = new System.Drawing.Point(98, 20);
             this.frpLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.frpLabel.Name = "frpLabel";
             this.frpLabel.Size = new System.Drawing.Size(23, 12);
@@ -125,7 +62,7 @@
             // zookeeperLabel
             // 
             this.zookeeperLabel.AutoSize = true;
-            this.zookeeperLabel.Location = new System.Drawing.Point(340, 154);
+            this.zookeeperLabel.Location = new System.Drawing.Point(98, 49);
             this.zookeeperLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.zookeeperLabel.Name = "zookeeperLabel";
             this.zookeeperLabel.Size = new System.Drawing.Size(23, 12);
@@ -136,7 +73,7 @@
             // 
             this.kafkaLabel.AutoSize = true;
             this.kafkaLabel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.kafkaLabel.Location = new System.Drawing.Point(340, 204);
+            this.kafkaLabel.Location = new System.Drawing.Point(96, 84);
             this.kafkaLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.kafkaLabel.Name = "kafkaLabel";
             this.kafkaLabel.Size = new System.Drawing.Size(25, 14);
@@ -147,7 +84,7 @@
             // 
             this.mysqlLabel.AutoSize = true;
             this.mysqlLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mysqlLabel.Location = new System.Drawing.Point(340, 258);
+            this.mysqlLabel.Location = new System.Drawing.Point(96, 121);
             this.mysqlLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.mysqlLabel.Name = "mysqlLabel";
             this.mysqlLabel.Size = new System.Drawing.Size(25, 14);
@@ -210,22 +147,55 @@
             this.timer1.Interval = 1000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(48, 20);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(23, 12);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "frp";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 49);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(59, 12);
+            this.label2.TabIndex = 3;
+            this.label2.Text = "zookeeper";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(36, 84);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(35, 12);
+            this.label3.TabIndex = 4;
+            this.label3.Text = "kafka";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(36, 121);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(35, 12);
+            this.label4.TabIndex = 5;
+            this.label4.Text = "mysql";
+            // 
             // menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.CancelButton = this.button1;
             this.ClientSize = new System.Drawing.Size(811, 347);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.mysqlLabel);
             this.Controls.Add(this.kafkaLabel);
             this.Controls.Add(this.zookeeperLabel);
             this.Controls.Add(this.frpLabel);
-            this.Controls.Add(this.javaLabel);
-            this.Controls.Add(this.button5);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "menu";
@@ -240,12 +210,6 @@
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button5;
-        private System.Windows.Forms.Label javaLabel;
         private System.Windows.Forms.Label frpLabel;
         private System.Windows.Forms.Label zookeeperLabel;
         private System.Windows.Forms.Label kafkaLabel;
@@ -258,6 +222,10 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem4;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem5;
         private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
     }
 }
 

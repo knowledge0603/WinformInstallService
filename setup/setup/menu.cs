@@ -138,8 +138,11 @@ namespace setup
 
             var ini = new IniFile();
             ini.Load(currentDir + "baseDir\\frp\\frpc.ini");
-            string ip = ini["common"]["server_addr"].ToString() ;
+            string ip = ini["common"]["server_addr"].ToString().TrimStart().TrimEnd() ;
             string port = ini["common"]["server_port"].ToString();
+
+        	//字符串替换函数
+            //string address=ip.Replace(".","[.]");
             return FrpPortInUse(ip, port);
 
         }

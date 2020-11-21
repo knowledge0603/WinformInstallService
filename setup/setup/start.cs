@@ -38,7 +38,7 @@ namespace setup
                 timer1.Start();
                 // A method that binds a delegate in loadData to the end of a notification in the main program
                 LoadData loadData = new LoadData();
-                loadData.sendEndMes += tellEnd;
+                loadData.sendEndMes += TellEnd;
                 // Start the thread to process the data
                 ParameterizedThreadStart loadThread = new ParameterizedThreadStart(loadData.Load);
                 Thread thread = new Thread(loadThread);
@@ -95,7 +95,7 @@ namespace setup
         /// This method is still a method in the child thread because the delegate is called in the child thread
         /// </summary>
         /// <param name="mes"></param>
-        private void tellEnd(string mes)
+        private void TellEnd(string mes)
         {
             startFlag = true;
         }
