@@ -20,8 +20,11 @@ namespace setup
         #region  declare
         //Determine if the basedir folder exists
         static string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
-
-
+        bool sendMessageStatus = false;
+        System.Timers.Timer zookeeperTimer= new System.Timers.Timer ();
+        System.Timers.Timer kafkaTimer= new System.Timers.Timer ();
+        System.Timers.Timer mySqlTimer= new System.Timers.Timer ();
+        int timerCount = 1;
         #endregion
 
         #region initialize
@@ -40,15 +43,38 @@ namespace setup
                 else
                 {
                     frpLabel.Text = "abnormal";
+                    System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
+                    frpTimer.Tick += new EventHandler(FrpTimerEvent);
+                    frpTimer.Enabled = true;
+                    frpTimer.Start();
+                    InstallFrp installFrp = new InstallFrp();
+                    installFrp.sendEndMes += TellEnd;
+                    ParameterizedThreadStart frpThread = new ParameterizedThreadStart(installFrp.Load);
+                    Thread thread = new Thread(frpThread);
+                    thread.IsBackground = true;
+                    thread.Start();
+                    WriteLogToFile("The unzip thread opens");
+
                 }
                 //zookeeper
-                if (ZooKeeperServerStatus())
+               /* if (ZooKeeperServerStatus())
                 {
                     zookeeperLabel.Text = "normal";
                 }
                 else
                 {
                     zookeeperLabel.Text = "abnormal";
+                    System.Windows.Forms.Timer zookeeperTimer = new System.Windows.Forms.Timer();
+                    zookeeperTimer.Tick += new EventHandler(ZookeeperTimerEvent);
+                    zookeeperTimer.Enabled = true;
+                    zookeeperTimer.Start();
+                    InstallZookeeper installZookeeper = new InstallZookeeper();
+                    installZookeeper.sendEndMessage += TellEnd;
+                    ParameterizedThreadStart zookeeperThread = new ParameterizedThreadStart(installZookeeper.Load);
+                    Thread thread = new Thread(zookeeperThread);
+                    thread.IsBackground = true;
+                    thread.Start();
+
                 }
                 if (KafkaServiceStatus())
                 {
@@ -61,6 +87,14 @@ namespace setup
                 else
                 {
                     kafkaLabel.Text = "abnormal";
+                    kafkaTimer.Enabled = true;
+                    kafkaTimer.Start();
+                    InstallKafka installKafka = new InstallKafka();
+                    installKafka.sendEndMessage += TellEnd;
+                    ParameterizedThreadStart kafkaThread = new ParameterizedThreadStart(installKafka.Load);
+                    Thread thread = new Thread(kafkaThread);
+                    thread.IsBackground = true;
+                    thread.Start();
                 }
                 if (MysqlServiceStatus())
                 {
@@ -69,6 +103,14 @@ namespace setup
                 else
                 {
                     mysqlLabel.Text = "abnormal";
+                    mySqlTimer.Enabled = true;
+                    mySqlTimer.Start();
+                    InstallMySQL installMySQL = new InstallMySQL();
+                    installMySQL.sendEndMes += TellEnd;
+                    ParameterizedThreadStart mySqlThread = new ParameterizedThreadStart(installMySQL.Load);
+                    Thread thread = new Thread(mySqlThread);
+                    thread.IsBackground = true;
+                    thread.Start();
                 }
 
                 string[] strArr = { "FrpWindowsService", "ZookeeperWindowsService", "KafkaWindowsService", "MysqlWindowsService" };
@@ -80,7 +122,7 @@ namespace setup
                         this.ServiceStart(str);
                     }
                 }
-                timer1.Start();
+                timer1.Start();*/
             }
         }
         #endregion
@@ -138,10 +180,10 @@ namespace setup
 
             var ini = new IniFile();
             ini.Load(currentDir + "baseDir\\frp\\frpc.ini");
-            string ip = ini["common"]["server_addr"].ToString().TrimStart().TrimEnd() ;
+            string ip = ini["common"]["server_addr"].ToString().TrimStart().TrimEnd();
             string port = ini["common"]["server_port"].ToString();
 
-        	//字符串替换函数
+            //字符串替换函数
             //string address=ip.Replace(".","[.]");
             return FrpPortInUse(ip, port);
 
@@ -164,7 +206,8 @@ namespace setup
 
         }
         #endregion
-		#region  mysql status
+
+        #region  mysql status
         public static bool MysqlServiceStatus()
         {
             WriteLogToFile("MysqlServiceStatus  methods start ");
@@ -271,7 +314,7 @@ namespace setup
         #region timer  monitor  service
         private void timer1_Tick(object sender, EventArgs e)
         {
-            if (ZooKeeperServerStatus())
+           /* if (ZooKeeperServerStatus())
             {
                 zookeeperLabel.Text = "normal";
             }
@@ -281,7 +324,7 @@ namespace setup
                 if (this.IsServiceExisted("ZookeeperWindowsService"))
                 {
                     this.ServiceStart("ZookeeperWindowsService");
-                } 
+                }
             }
             if (KafkaServiceStatus())
             {
@@ -304,10 +347,10 @@ namespace setup
                             Thread.Sleep(7000);
                         }
                     }
-                } 
-            }
+                }
+            }*/
         }
-        #endregion 
+        #endregion
 
         #region Close the form hidden to the tray
         private void menu_FormClosing(object sender, FormClosingEventArgs e)
@@ -322,7 +365,7 @@ namespace setup
                 return;
             }
         }
-        #endregion 
+        #endregion
 
         #region Right-click tray exit
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
@@ -333,7 +376,7 @@ namespace setup
 
         #region FrpPortInUse
 
-        public static bool FrpPortInUse(string remoteIp,string port)
+        public static bool FrpPortInUse(string remoteIp, string port)
         {
             bool status = false;
             if (!string.IsNullOrEmpty(port))
@@ -356,5 +399,77 @@ namespace setup
             return status;
         }
         #endregion
+
+        #region End of processing message
+        /// <summary>
+        /// Method to notify load of the end of data
+        /// This method is still a method in the child thread because the delegate is called in the child thread
+        /// </summary>
+        /// <param name="mes"></param>
+        private void TellEnd(string mes)
+        {
+            sendMessageStatus = true;
+        }
+        #endregion
+
+
+        public void ZookeeperTimerEvent(object sender, EventArgs e)
+        {
+            if (timerCount % 6 == 1)
+            {
+                zookeeperStatusLabel.Text = ".";
+            }
+            else if (timerCount % 6 == 2)
+            {
+                zookeeperStatusLabel.Text = "..";
+            }
+            else if (timerCount % 6 == 3)
+            {
+                zookeeperStatusLabel.Text = "...";
+            }
+            else if (timerCount % 6 == 4)
+            {
+                zookeeperStatusLabel.Text = "....";
+            }
+            else if (timerCount % 6 == 5)
+            {
+                zookeeperStatusLabel.Text = ".....";
+            }
+            else
+            {
+                zookeeperStatusLabel.Text = "......";
+            }
+            timerCount++;
+        }
+
+        public  void FrpTimerEvent(object sender, EventArgs e)
+        {
+            if (timerCount % 6 == 1)
+            {
+                frpStatusLabel.Text = ".";
+            }
+            else if (timerCount % 6 == 2)
+            {
+                frpStatusLabel.Text = "..";
+            }
+            else if (timerCount % 6 == 3)
+            {
+                frpStatusLabel.Text = "...";
+            }
+            else if (timerCount % 6 == 4)
+            {
+                frpStatusLabel.Text = "....";
+            }
+            else if (timerCount % 6 == 5)
+            {
+                frpStatusLabel.Text = ".....";
+            }
+            else
+            {
+                frpStatusLabel.Text = "......";
+            }
+            timerCount++;
+        }
+        
     }
 }

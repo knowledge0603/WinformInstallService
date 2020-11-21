@@ -37,10 +37,10 @@ namespace setup
                 timer1.Enabled = true;
                 timer1.Start();
                 // A method that binds a delegate in loadData to the end of a notification in the main program
-                LoadData loadData = new LoadData();
-                loadData.sendEndMes += TellEnd;
+                UnzipFile unzipFile = new UnzipFile();
+                unzipFile.sendEndMes += TellEnd;
                 // Start the thread to process the data
-                ParameterizedThreadStart loadThread = new ParameterizedThreadStart(loadData.Load);
+                ParameterizedThreadStart loadThread = new ParameterizedThreadStart(unzipFile.Load);
                 Thread thread = new Thread(loadThread);
                 thread.IsBackground = true;
                 thread.Start();

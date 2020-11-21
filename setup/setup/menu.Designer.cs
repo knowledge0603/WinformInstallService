@@ -46,6 +46,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
+            this.frpStatusLabel = new System.Windows.Forms.Label();
+            this.zookeeperStatusLabel = new System.Windows.Forms.Label();
+            this.kafkaStatusLabel = new System.Windows.Forms.Label();
+            this.mySqlStatusLabel = new System.Windows.Forms.Label();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -109,37 +113,37 @@
             this.toolStripMenuItem4,
             this.toolStripMenuItem5});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(179, 114);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(259, 124);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(178, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(258, 24);
             this.toolStripMenuItem1.Text = "exit";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(178, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(258, 24);
             this.toolStripMenuItem2.Text = "toolStripMenuItem2";
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(178, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(258, 24);
             this.toolStripMenuItem3.Text = "toolStripMenuItem3";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(178, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(258, 24);
             this.toolStripMenuItem4.Text = "toolStripMenuItem4";
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(178, 22);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(258, 24);
             this.toolStripMenuItem5.Text = "toolStripMenuItem5";
             // 
             // timer1
@@ -183,11 +187,51 @@
             this.label4.TabIndex = 5;
             this.label4.Text = "mysql";
             // 
+            // frpStatusLabel
+            // 
+            this.frpStatusLabel.AutoSize = true;
+            this.frpStatusLabel.Location = new System.Drawing.Point(155, 20);
+            this.frpStatusLabel.Name = "frpStatusLabel";
+            this.frpStatusLabel.Size = new System.Drawing.Size(41, 12);
+            this.frpStatusLabel.TabIndex = 6;
+            this.frpStatusLabel.Text = "......";
+            // 
+            // zookeeperStatusLabel
+            // 
+            this.zookeeperStatusLabel.AutoSize = true;
+            this.zookeeperStatusLabel.Location = new System.Drawing.Point(155, 49);
+            this.zookeeperStatusLabel.Name = "zookeeperStatusLabel";
+            this.zookeeperStatusLabel.Size = new System.Drawing.Size(41, 12);
+            this.zookeeperStatusLabel.TabIndex = 7;
+            this.zookeeperStatusLabel.Text = "......";
+            // 
+            // kafkaStatusLabel
+            // 
+            this.kafkaStatusLabel.AutoSize = true;
+            this.kafkaStatusLabel.Location = new System.Drawing.Point(155, 84);
+            this.kafkaStatusLabel.Name = "kafkaStatusLabel";
+            this.kafkaStatusLabel.Size = new System.Drawing.Size(41, 12);
+            this.kafkaStatusLabel.TabIndex = 8;
+            this.kafkaStatusLabel.Text = "......";
+            // 
+            // mySqlStatusLabel
+            // 
+            this.mySqlStatusLabel.AutoSize = true;
+            this.mySqlStatusLabel.Location = new System.Drawing.Point(155, 121);
+            this.mySqlStatusLabel.Name = "mySqlStatusLabel";
+            this.mySqlStatusLabel.Size = new System.Drawing.Size(41, 12);
+            this.mySqlStatusLabel.TabIndex = 9;
+            this.mySqlStatusLabel.Text = "......";
+            // 
             // menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(811, 347);
+            this.Controls.Add(this.mySqlStatusLabel);
+            this.Controls.Add(this.kafkaStatusLabel);
+            this.Controls.Add(this.zookeeperStatusLabel);
+            this.Controls.Add(this.frpStatusLabel);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -226,6 +270,10 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label frpStatusLabel;
+        private System.Windows.Forms.Label zookeeperStatusLabel;
+        private System.Windows.Forms.Label kafkaStatusLabel;
+        private System.Windows.Forms.Label mySqlStatusLabel;
     }
 }
 

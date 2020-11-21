@@ -15,57 +15,15 @@ using System.ServiceProcess;
 
 namespace setup
 {
-    class LoadData
+    class UnzipFile
     {
+
         #region Declarative region
         //Declares a delegate that returns the end information to the main thread
         public delegate void SendEndMessage(string mes);
         public SendEndMessage sendEndMes;
         string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
         #endregion
-
-        #region Copy folders
-        /// <summary>
-        /// Copy everything under the folder
-        /// </summary>
-        /// <param name="SourcePath">The folder to Copy</param>
-        /// <param name="DestinationPath">Where do I copy it</param>
-        /// <param name="overwriteexisting">Whether or not covered</param>
-        /// <returns></returns>
-        private static bool CopyDirectory(string SourcePath, string DestinationPath, bool overwriteexisting)
-        {
-            bool ret = false;
-            try
-            {
-                SourcePath = SourcePath.EndsWith(@"\") ? SourcePath : SourcePath + @"\";
-                DestinationPath = DestinationPath.EndsWith(@"\") ? DestinationPath : DestinationPath + @"\";
-
-                if (Directory.Exists(SourcePath))
-                {
-                    if (Directory.Exists(DestinationPath) == false)
-                        Directory.CreateDirectory(DestinationPath);
-
-                    foreach (string fls in Directory.GetFiles(SourcePath))
-                    {
-                        FileInfo flinfo = new FileInfo(fls);
-                        flinfo.CopyTo(DestinationPath + flinfo.Name, overwriteexisting);
-                    }
-                    foreach (string drs in Directory.GetDirectories(SourcePath))
-                    {
-                        DirectoryInfo drinfo = new DirectoryInfo(drs);
-                        if (CopyDirectory(drs, DestinationPath + drinfo.Name, overwriteexisting) == false)
-                            ret = false;
-                    }
-                }
-                ret = true;
-            }
-            catch (Exception ex)
-            {
-                ret = false;
-            }
-            return ret;
-        }
-        #endregion 
 
         #region Unzip and initialize configuration
         /// <summary>
@@ -158,100 +116,10 @@ namespace setup
                 streamWriterNew.Close();
             }
 
-            Dictionary<string, string> winServiceList = new Dictionary<string, string>();
-            winServiceList.Add("FrpWindowsService", AppDomain.CurrentDomain.BaseDirectory + "\\FrpWindowsService.exe");
-            winServiceList.Add("ZookeeperWindowsService", AppDomain.CurrentDomain.BaseDirectory + "\\ZookeeperWindowsService.exe");
-            winServiceList.Add("KafkaWindowsService", volume + ":\\kafka\\bin\\windows\\" + "KafkaWindowsService.exe");
-           //install win service
-            foreach (var item in winServiceList)
-            {
-                if (this.IsServiceExisted(item.Key))
-                {
-                    this.UninstallService(item.Value);
-                }
-                this.InstallService(item.Value);
-                if (this.IsServiceExisted(item.Key))
-                {
-                    this.ServiceStart(item.Key); 
-                }
-            }
-            //install mysql service and  start mysql service 
-            Process proc = new Process();
-            proc.StartInfo.CreateNoWindow = true;
-            proc.StartInfo.FileName = "cmd.exe";
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.RedirectStandardInput = true;
-            proc.StartInfo.RedirectStandardOutput = true;
-            proc.Start();
-            proc.StandardInput.WriteLine("cd " + currentDir + "baseDir\\mysql-8.0.22-winx64\\");
-            proc.StandardInput.WriteLine("mysql_init_db.bat ");
-            proc.StandardInput.WriteLine("exit");
-            proc.StandardOutput.ReadToEnd();
-            proc.Close();
+
             // delegate send message
             sendEndMes("process end");
 
-        }
-        #endregion
-
-        #region service process start stop install  delete
-        private bool IsServiceExisted(string serviceName)
-        {
-            ServiceController[] services = ServiceController.GetServices();
-            foreach (ServiceController sc in services)
-            {
-                if (sc.ServiceName.ToLower() == serviceName.ToLower())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        //安装服务
-        private void InstallService(string serviceFilePath)
-        {
-            using (AssemblyInstaller installer = new AssemblyInstaller())
-            {
-                installer.UseNewContext = true;
-                installer.Path = serviceFilePath;
-                IDictionary savedState = new Hashtable();
-                installer.Install(savedState);
-                installer.Commit(savedState);
-            }
-        }
-        //卸载服务
-        private void UninstallService(string serviceFilePath)
-        {
-            using (AssemblyInstaller installer = new AssemblyInstaller())
-            {
-                installer.UseNewContext = true;
-                installer.Path = serviceFilePath;
-                installer.Uninstall(null);
-            }
-        }
-        //启动服务
-        private void ServiceStart(string serviceName)
-        {
-            using (ServiceController control = new ServiceController(serviceName))
-            {
-                if (control.Status == ServiceControllerStatus.Stopped)
-                {
-                    control.Start();
-                }
-            }
-        }
-
-        //停止服务
-        private void ServiceStop(string serviceName)
-        {
-            using (ServiceController control = new ServiceController(serviceName))
-            {
-                if (control.Status == ServiceControllerStatus.Running)
-                {
-                    control.Stop();
-                }
-            }
         }
         #endregion
 
@@ -276,6 +144,49 @@ namespace setup
             File.WriteAllLines(filename, fileToOutput, Encoding.GetEncoding("gb2312"));
         }
        #endregion 
+        
+        #region Copy folders
+        /// <summary>
+        /// Copy everything under the folder
+        /// </summary>
+        /// <param name="SourcePath">The folder to Copy</param>
+        /// <param name="DestinationPath">Where do I copy it</param>
+        /// <param name="overwriteexisting">Whether or not covered</param>
+        /// <returns></returns>
+        private static bool CopyDirectory(string SourcePath, string DestinationPath, bool overwriteexisting)
+        {
+            bool ret = false;
+            try
+            {
+                SourcePath = SourcePath.EndsWith(@"\") ? SourcePath : SourcePath + @"\";
+                DestinationPath = DestinationPath.EndsWith(@"\") ? DestinationPath : DestinationPath + @"\";
+
+                if (Directory.Exists(SourcePath))
+                {
+                    if (Directory.Exists(DestinationPath) == false)
+                        Directory.CreateDirectory(DestinationPath);
+
+                    foreach (string fls in Directory.GetFiles(SourcePath))
+                    {
+                        FileInfo flinfo = new FileInfo(fls);
+                        flinfo.CopyTo(DestinationPath + flinfo.Name, overwriteexisting);
+                    }
+                    foreach (string drs in Directory.GetDirectories(SourcePath))
+                    {
+                        DirectoryInfo drinfo = new DirectoryInfo(drs);
+                        if (CopyDirectory(drs, DestinationPath + drinfo.Name, overwriteexisting) == false)
+                            ret = false;
+                    }
+                }
+                ret = true;
+            }
+            catch (Exception ex)
+            {
+                ret = false;
+            }
+            return ret;
+        }
+        #endregion 
 
     }
 }
