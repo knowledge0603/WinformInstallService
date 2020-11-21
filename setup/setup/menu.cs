@@ -136,10 +136,10 @@ namespace setup
         public bool OpenChannel()
         {
 
-            Ini readIdent = new Ini();
-            readIdent.LoadFromFile(currentDir + "baseDir\\frp\\frpc.ini");
-            string ip = readIdent.ReadIdent("common", "server_addr","");
-            string port = readIdent.ReadIdent("common", "server_port", "");
+            var ini = new IniFile();
+            ini.Load(currentDir + "baseDir\\frp\\frpc.ini");
+            string ip = ini["common"]["server_addr"].ToString() ;
+            string port = ini["common"]["server_port"].ToString();
             return FrpPortInUse(ip, port);
 
         }
@@ -328,6 +328,7 @@ namespace setup
         }
         #endregion
 
+        #region FrpPortInUse
 
         public static bool FrpPortInUse(string remoteIp,string port)
         {
@@ -351,6 +352,6 @@ namespace setup
             }
             return status;
         }
-
+        #endregion
     }
 }

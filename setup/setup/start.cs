@@ -40,7 +40,7 @@ namespace setup
                 LoadData loadData = new LoadData();
                 loadData.sendEndMes += tellEnd;
                 // Start the thread to process the data
-                ParameterizedThreadStart loadThread = new ParameterizedThreadStart(loadData.load);
+                ParameterizedThreadStart loadThread = new ParameterizedThreadStart(loadData.Load);
                 Thread thread = new Thread(loadThread);
                 thread.IsBackground = true;
                 thread.Start();
