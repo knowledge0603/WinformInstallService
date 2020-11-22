@@ -72,7 +72,7 @@
     <Compile Include="IniUtils.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils.cs" />
+    <Compile Include="Common.cs" />
     <Compile Include="VcEnvironmentJudgment.cs" />
     <EmbeddedResource Include="menu.resx">
       <DependentUpon>menu.cs</DependentUpon>

@@ -21,14 +21,14 @@ namespace setup
         public void Load(object obj)
         {
             //install zookeeper service and  start zookeeper service 
-            if (Utils.IsServiceExisted("ZookeeperWindowsService"))
+            if (Common.IsServiceExisted("ZookeeperWindowsService"))
             {
-                Utils.UninstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\zookeeper\\bin\\ZookeeperWindowsService.exe");
+                Common.UninstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\zookeeper\\bin\\ZookeeperWindowsService.exe");
             }
-            Utils.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\zookeeper\\bin\\ZookeeperWindowsService.exe");
-            if (Utils.IsServiceExisted("ZookeeperWindowsService"))
+            Common.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\zookeeper\\bin\\ZookeeperWindowsService.exe");
+            if (Common.IsServiceExisted("ZookeeperWindowsService"))
             {
-                Utils.ServiceStart("ZookeeperWindowsService");
+                Common.ServiceStart("ZookeeperWindowsService");
             }
         }
         #endregion

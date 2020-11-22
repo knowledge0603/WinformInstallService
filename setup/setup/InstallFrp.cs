@@ -22,14 +22,13 @@ namespace setup
         public void Load(object obj)
         {
             //install frp service and  start frp service 
-            if (Utils.IsServiceExisted("FrpWindowsService"))
+            if (!Common.IsServiceExisted("FrpWindowsService"))
             {
-                Utils.UninstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
+                Common.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
             }
-            Utils.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
-            if (Utils.IsServiceExisted("FrpWindowsService"))
+            if (Common.IsServiceExisted("FrpWindowsService"))
             {
-                Utils.ServiceStart("FrpWindowsService");
+                Common.ServiceStart("FrpWindowsService");
             }
         }
         #endregion

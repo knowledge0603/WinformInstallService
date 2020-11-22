@@ -127,32 +127,7 @@ namespace setup
         }
         #endregion
 
-        #region service start
-        //start service 
-        private void ServiceStart(string serviceName)
-        {
-            using (ServiceController control = new ServiceController(serviceName))
-            {
-                if (control.Status == ServiceControllerStatus.Stopped)
-                {
-                    control.Start();
-                }
-            }
-        }
-
-        private bool IsServiceExisted(string serviceName)
-        {
-            ServiceController[] services = ServiceController.GetServices();
-            foreach (ServiceController sc in services)
-            {
-                if (sc.ServiceName.ToLower() == serviceName.ToLower())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        #endregion
+        
 
         #region notifyIcon
 
@@ -182,9 +157,6 @@ namespace setup
             ini.Load(currentDir + "baseDir\\frp\\frpc.ini");
             string ip = ini["common"]["server_addr"].ToString().TrimStart().TrimEnd();
             string port = ini["common"]["server_port"].ToString();
-
-            //字符串替换函数
-            //string address=ip.Replace(".","[.]");
             return FrpPortInUse(ip, port);
 
         }
@@ -469,6 +441,9 @@ namespace setup
                 frpStatusLabel.Text = "......";
             }
             timerCount++;
+            //注册本地frp服务
+            //启动本地frp服务
+            //
         }
         
     }

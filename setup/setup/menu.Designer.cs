@@ -50,13 +50,17 @@
             this.zookeeperStatusLabel = new System.Windows.Forms.Label();
             this.kafkaStatusLabel = new System.Windows.Forms.Label();
             this.mySqlStatusLabel = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.contextMenuStrip1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // frpLabel
             // 
             this.frpLabel.AutoSize = true;
-            this.frpLabel.Location = new System.Drawing.Point(98, 20);
+            this.frpLabel.Location = new System.Drawing.Point(109, 42);
             this.frpLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.frpLabel.Name = "frpLabel";
             this.frpLabel.Size = new System.Drawing.Size(23, 12);
@@ -66,7 +70,7 @@
             // zookeeperLabel
             // 
             this.zookeeperLabel.AutoSize = true;
-            this.zookeeperLabel.Location = new System.Drawing.Point(98, 49);
+            this.zookeeperLabel.Location = new System.Drawing.Point(111, 38);
             this.zookeeperLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.zookeeperLabel.Name = "zookeeperLabel";
             this.zookeeperLabel.Size = new System.Drawing.Size(23, 12);
@@ -77,7 +81,7 @@
             // 
             this.kafkaLabel.AutoSize = true;
             this.kafkaLabel.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.kafkaLabel.Location = new System.Drawing.Point(96, 84);
+            this.kafkaLabel.Location = new System.Drawing.Point(109, 73);
             this.kafkaLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.kafkaLabel.Name = "kafkaLabel";
             this.kafkaLabel.Size = new System.Drawing.Size(25, 14);
@@ -88,7 +92,7 @@
             // 
             this.mysqlLabel.AutoSize = true;
             this.mysqlLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.mysqlLabel.Location = new System.Drawing.Point(96, 121);
+            this.mysqlLabel.Location = new System.Drawing.Point(111, 78);
             this.mysqlLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.mysqlLabel.Name = "mysqlLabel";
             this.mysqlLabel.Size = new System.Drawing.Size(25, 14);
@@ -154,7 +158,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(48, 20);
+            this.label1.Location = new System.Drawing.Point(59, 42);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(23, 12);
             this.label1.TabIndex = 2;
@@ -163,7 +167,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 49);
+            this.label2.Location = new System.Drawing.Point(25, 38);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(59, 12);
             this.label2.TabIndex = 3;
@@ -172,7 +176,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(36, 84);
+            this.label3.Location = new System.Drawing.Point(49, 73);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(35, 12);
             this.label3.TabIndex = 4;
@@ -181,7 +185,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(36, 121);
+            this.label4.Location = new System.Drawing.Point(51, 78);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(35, 12);
             this.label4.TabIndex = 5;
@@ -190,7 +194,7 @@
             // frpStatusLabel
             // 
             this.frpStatusLabel.AutoSize = true;
-            this.frpStatusLabel.Location = new System.Drawing.Point(155, 20);
+            this.frpStatusLabel.Location = new System.Drawing.Point(166, 42);
             this.frpStatusLabel.Name = "frpStatusLabel";
             this.frpStatusLabel.Size = new System.Drawing.Size(41, 12);
             this.frpStatusLabel.TabIndex = 6;
@@ -199,7 +203,7 @@
             // zookeeperStatusLabel
             // 
             this.zookeeperStatusLabel.AutoSize = true;
-            this.zookeeperStatusLabel.Location = new System.Drawing.Point(155, 49);
+            this.zookeeperStatusLabel.Location = new System.Drawing.Point(168, 38);
             this.zookeeperStatusLabel.Name = "zookeeperStatusLabel";
             this.zookeeperStatusLabel.Size = new System.Drawing.Size(41, 12);
             this.zookeeperStatusLabel.TabIndex = 7;
@@ -208,7 +212,7 @@
             // kafkaStatusLabel
             // 
             this.kafkaStatusLabel.AutoSize = true;
-            this.kafkaStatusLabel.Location = new System.Drawing.Point(155, 84);
+            this.kafkaStatusLabel.Location = new System.Drawing.Point(168, 73);
             this.kafkaStatusLabel.Name = "kafkaStatusLabel";
             this.kafkaStatusLabel.Size = new System.Drawing.Size(41, 12);
             this.kafkaStatusLabel.TabIndex = 8;
@@ -217,29 +221,49 @@
             // mySqlStatusLabel
             // 
             this.mySqlStatusLabel.AutoSize = true;
-            this.mySqlStatusLabel.Location = new System.Drawing.Point(155, 121);
+            this.mySqlStatusLabel.Location = new System.Drawing.Point(170, 78);
             this.mySqlStatusLabel.Name = "mySqlStatusLabel";
             this.mySqlStatusLabel.Size = new System.Drawing.Size(41, 12);
             this.mySqlStatusLabel.TabIndex = 9;
             this.mySqlStatusLabel.Text = "......";
             // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.kafkaStatusLabel);
+            this.groupBox1.Controls.Add(this.zookeeperLabel);
+            this.groupBox1.Controls.Add(this.kafkaLabel);
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.zookeeperStatusLabel);
+            this.groupBox1.Controls.Add(this.label3);
+            this.groupBox1.Location = new System.Drawing.Point(12, 12);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(413, 123);
+            this.groupBox1.TabIndex = 10;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "server";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.mySqlStatusLabel);
+            this.groupBox2.Controls.Add(this.mysqlLabel);
+            this.groupBox2.Controls.Add(this.label4);
+            this.groupBox2.Controls.Add(this.frpStatusLabel);
+            this.groupBox2.Controls.Add(this.label1);
+            this.groupBox2.Controls.Add(this.frpLabel);
+            this.groupBox2.Location = new System.Drawing.Point(12, 152);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(413, 127);
+            this.groupBox2.TabIndex = 11;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "client";
+            // 
             // menu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(811, 347);
-            this.Controls.Add(this.mySqlStatusLabel);
-            this.Controls.Add(this.kafkaStatusLabel);
-            this.Controls.Add(this.zookeeperStatusLabel);
-            this.Controls.Add(this.frpStatusLabel);
-            this.Controls.Add(this.label4);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.mysqlLabel);
-            this.Controls.Add(this.kafkaLabel);
-            this.Controls.Add(this.zookeeperLabel);
-            this.Controls.Add(this.frpLabel);
+            this.ClientSize = new System.Drawing.Size(650, 320);
+            this.Controls.Add(this.groupBox2);
+            this.Controls.Add(this.groupBox1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "menu";
@@ -247,8 +271,11 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.menu_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.contextMenuStrip1.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -274,6 +301,8 @@
         private System.Windows.Forms.Label zookeeperStatusLabel;
         private System.Windows.Forms.Label kafkaStatusLabel;
         private System.Windows.Forms.Label mySqlStatusLabel;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBox2;
     }
 }
 

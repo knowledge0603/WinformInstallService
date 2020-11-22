@@ -8,8 +8,9 @@ using System.Collections;
 
 namespace setup
 {
-    class Utils
+    class Common
     {
+
         #region declare 
         public static string volume = System.Windows.Forms.Application.StartupPath.Substring(0, System.Windows.Forms.Application.StartupPath.IndexOf(":"));
         #endregion
@@ -73,5 +74,6 @@ namespace setup
             }
         }
         #endregion
+
     }
 }

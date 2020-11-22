@@ -21,14 +21,14 @@ namespace setup
         public void Load(object obj)
         {
             //install kafka service and  start kafka service 
-            if (Utils.IsServiceExisted("KafkaWindowsService"))
+            if (Common.IsServiceExisted("KafkaWindowsService"))
             {
-                Utils.UninstallService(Utils.volume + ":\\kafka\\bin\\windows\\" + "KafkaWindowsService.exe");
+                Common.UninstallService(Common.volume + ":\\kafka\\bin\\windows\\" + "KafkaWindowsService.exe");
             }
-            Utils.InstallService(Utils.volume + ":\\kafka\\bin\\windows\\" + "KafkaWindowsService.exe");
-            if (Utils.IsServiceExisted("KafkaWindowsService"))
+            Common.InstallService(Common.volume + ":\\kafka\\bin\\windows\\" + "KafkaWindowsService.exe");
+            if (Common.IsServiceExisted("KafkaWindowsService"))
             {
-                Utils.ServiceStart("KafkaWindowsService");
+                Common.ServiceStart("KafkaWindowsService");
             }
         }
         #endregion
