@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.ServiceProcess;
+using Microsoft.VisualBasic.Devices;
 
 namespace setup
 {
@@ -33,6 +34,25 @@ namespace setup
 
             InitializeComponent();
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+
+            System.OperatingSystem osInfo = System.Environment.OSVersion;
+            //Determine if the system is Windows server 2012 2016 2019
+            ComputerInfo info = new ComputerInfo();
+            string osFullName = info.OSFullName;
+            bool ipFlag =  Common.IsInnerIP("192.168.56.1");
+            string ip  = Common.GetLocalIp();
+
+
+
+
+            if (   info.OSFullName.IndexOf("2012")!= -1
+                || info.OSFullName.IndexOf("2016")!= -1
+                || info.OSFullName.IndexOf("2019")!= -1) 
+            {
+                Common.IsInnerIP("192.168.56.1");
+
+            }
+
             if (Directory.Exists(currentDir + "baseDir"))
             {
                 //frp
@@ -126,8 +146,6 @@ namespace setup
             }
         }
         #endregion
-
-        
 
         #region notifyIcon
 
