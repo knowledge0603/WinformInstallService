@@ -63,18 +63,26 @@ namespace setup
                 else
                 {
                     frpLabel.Text = "abnormal";
-                    System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
+                    using (ServiceController control = new ServiceController("FrpWindowsService"))
+                    {
+                        if (control.Status == ServiceControllerStatus.Stopped)
+                        {
+                            control.Start();
+                        }
+                    }
+
+                   System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
                     frpTimer.Tick += new EventHandler(FrpTimerEvent);
                     frpTimer.Interval = 1000;
                     frpTimer.Enabled = true;
                     frpTimer.Start();
-                    InstallFrp installFrp = new InstallFrp();
+                    /* InstallFrp installFrp = new InstallFrp();
                     installFrp.sendEndMes += TellEnd;
                     ParameterizedThreadStart frpThread = new ParameterizedThreadStart(installFrp.Load);
                     Thread thread = new Thread(frpThread);
                     thread.IsBackground = true;
                     thread.Start();
-                    WriteLogToFile("install  frp  service thread start ");
+                    WriteLogToFile("install  frp  service thread start ");*/
 
                 }
                 //zookeeper
@@ -177,13 +185,23 @@ namespace setup
             string port = ini["common"]["server_port"].ToString();
             if (FrpPortInUse(ip, port)) 
             {
-                var iniFrp = new IniFile();
-                iniFrp.Load(currentDir + "baseDir\\frp\\FrpWindowsServiceStatus.ini");
-                string frpStatus = ini["frpServiceStatus"]["runing"].ToString().TrimStart().TrimEnd();
-                if (frpStatus=="true") 
+                /*  var iniFrp = new IniFile();
+                  iniFrp.Load(currentDir + "baseDir\\frp\\FrpWindowsServiceStatus.ini");
+                  string frpStatus = ini["frpServiceStatus"]["runing"].ToString().TrimStart().TrimEnd();
+                  if (frpStatus=="true") 
+                  {
+                      return true;
+                  } */
+                if (Common.IsServiceExisted("FrpWindowsService"))
                 {
-                    return true;
-                } 
+                    using (ServiceController control = new ServiceController("FrpWindowsService"))
+                    {
+                        if (control.Status == ServiceControllerStatus.Running)
+                        {
+                            return true;
+                        }
+                    }
+                }
             }
             return false;
         }
@@ -475,12 +493,15 @@ namespace setup
             }
             if (Common.IsServiceExisted("FrpWindowsService"))
             {
-                Common.ServiceStart("FrpWindowsService");
+                using (ServiceController control = new ServiceController("FrpWindowsService"))
+                {
+                    if (control.Status == ServiceControllerStatus.Stopped)
+                    {
+                        control.Start();
+                        //Thread.Sleep(7000);
+                    }
+                }
             }
-            //if (FrpServiceStatus()) 
-            //{
-              //  frpLabel.Text = "normal";
-            //} 
         }
 
     }

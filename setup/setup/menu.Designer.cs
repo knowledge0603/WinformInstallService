@@ -53,14 +53,14 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.serverTabPage = new System.Windows.Forms.TabPage();
+            this.clientTabPage = new System.Windows.Forms.TabPage();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
+            this.serverTabPage.SuspendLayout();
+            this.clientTabPage.SuspendLayout();
             this.SuspendLayout();
             // 
             // frpLabel
@@ -123,37 +123,37 @@
             this.toolStripMenuItem4,
             this.toolStripMenuItem5});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(193, 114);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(179, 114);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(192, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(178, 22);
             this.toolStripMenuItem1.Text = "exit";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(192, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(178, 22);
             this.toolStripMenuItem2.Text = "toolStripMenuItem2";
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(192, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(178, 22);
             this.toolStripMenuItem3.Text = "toolStripMenuItem3";
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(192, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(178, 22);
             this.toolStripMenuItem4.Text = "toolStripMenuItem4";
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(192, 22);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(178, 22);
             this.toolStripMenuItem5.Text = "toolStripMenuItem5";
             // 
             // timer1
@@ -265,35 +265,35 @@
             // 
             // tabControl1
             // 
-            this.tabControl1.Controls.Add(this.tabPage1);
-            this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.serverTabPage);
+            this.tabControl1.Controls.Add(this.clientTabPage);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(632, 358);
             this.tabControl1.TabIndex = 12;
             // 
-            // tabPage1
+            // serverTabPage
             // 
-            this.tabPage1.Controls.Add(this.groupBox1);
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(624, 332);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "server";
-            this.tabPage1.UseVisualStyleBackColor = true;
+            this.serverTabPage.Controls.Add(this.groupBox1);
+            this.serverTabPage.Location = new System.Drawing.Point(4, 22);
+            this.serverTabPage.Name = "serverTabPage";
+            this.serverTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.serverTabPage.Size = new System.Drawing.Size(624, 332);
+            this.serverTabPage.TabIndex = 0;
+            this.serverTabPage.Text = "server";
+            this.serverTabPage.UseVisualStyleBackColor = true;
             // 
-            // tabPage2
+            // clientTabPage
             // 
-            this.tabPage2.Controls.Add(this.groupBox2);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(624, 332);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "client";
-            this.tabPage2.UseVisualStyleBackColor = true;
+            this.clientTabPage.Controls.Add(this.groupBox2);
+            this.clientTabPage.Location = new System.Drawing.Point(4, 22);
+            this.clientTabPage.Name = "clientTabPage";
+            this.clientTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.clientTabPage.Size = new System.Drawing.Size(624, 332);
+            this.clientTabPage.TabIndex = 1;
+            this.clientTabPage.Text = "client";
+            this.clientTabPage.UseVisualStyleBackColor = true;
             // 
             // menu
             // 
@@ -313,8 +313,8 @@
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.tabControl1.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
+            this.serverTabPage.ResumeLayout(false);
+            this.clientTabPage.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -344,8 +344,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.TabControl tabControl1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage serverTabPage;
+        private System.Windows.Forms.TabPage clientTabPage;
     }
 }
 

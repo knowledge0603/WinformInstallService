@@ -26,7 +26,7 @@ namespace setup
             {
                 Common.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
             }
-            if (Common.IsServiceExisted("FrpWindowsService"))
+            else 
             {
                 Common.ServiceStart("FrpWindowsService");
             }
