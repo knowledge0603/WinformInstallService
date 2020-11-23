@@ -22,9 +22,9 @@ namespace setup
         //Determine if the basedir folder exists
         static string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
         bool sendMessageStatus = false;
-        System.Timers.Timer zookeeperTimer= new System.Timers.Timer ();
-        System.Timers.Timer kafkaTimer= new System.Timers.Timer ();
-        System.Timers.Timer mySqlTimer= new System.Timers.Timer ();
+        System.Timers.Timer zookeeperTimer = new System.Timers.Timer();
+        System.Timers.Timer kafkaTimer = new System.Timers.Timer();
+        System.Timers.Timer mySqlTimer = new System.Timers.Timer();
         int timerCount = 1;
         #endregion
 
@@ -38,25 +38,25 @@ namespace setup
             System.OperatingSystem osInfo = System.Environment.OSVersion;
             //Determine if the system is Windows server 2012 2016 2019
             ComputerInfo info = new ComputerInfo();
-            string osFullName = info.OSFullName;
-            bool ipFlag =  Common.IsInnerIP("192.168.56.1");
-            string ip  = Common.GetLocalIp();
-
-
-
-
-            if (   info.OSFullName.IndexOf("2012")!= -1
-                || info.OSFullName.IndexOf("2016")!= -1
-                || info.OSFullName.IndexOf("2019")!= -1) 
+            if (info.OSFullName.IndexOf("2012") != -1
+                || info.OSFullName.IndexOf("2016") != -1
+                || info.OSFullName.IndexOf("2019") != -1)
             {
-                Common.IsInnerIP("192.168.56.1");
-
+                //Determine whether the local IP is public IP
+                if (!Common.IsInnerIP(Common.GetLocalIp()))
+                {
+                    serverTabPage.Parent = serverTabPage;  //enable
+                }
+            }
+            else 
+            {
+                serverTabPage.Parent = null;  //disable
             }
 
             if (Directory.Exists(currentDir + "baseDir"))
             {
                 //frp
-                if (OpenChannel())
+                if (FrpServiceStatus())
                 {
                     frpLabel.Text = "normal";
                 }
@@ -65,6 +65,7 @@ namespace setup
                     frpLabel.Text = "abnormal";
                     System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
                     frpTimer.Tick += new EventHandler(FrpTimerEvent);
+                    frpTimer.Interval = 1000;
                     frpTimer.Enabled = true;
                     frpTimer.Start();
                     InstallFrp installFrp = new InstallFrp();
@@ -73,76 +74,76 @@ namespace setup
                     Thread thread = new Thread(frpThread);
                     thread.IsBackground = true;
                     thread.Start();
-                    WriteLogToFile("The unzip thread opens");
+                    WriteLogToFile("install  frp  service thread start ");
 
                 }
                 //zookeeper
-               /* if (ZooKeeperServerStatus())
-                {
-                    zookeeperLabel.Text = "normal";
-                }
-                else
-                {
-                    zookeeperLabel.Text = "abnormal";
-                    System.Windows.Forms.Timer zookeeperTimer = new System.Windows.Forms.Timer();
-                    zookeeperTimer.Tick += new EventHandler(ZookeeperTimerEvent);
-                    zookeeperTimer.Enabled = true;
-                    zookeeperTimer.Start();
-                    InstallZookeeper installZookeeper = new InstallZookeeper();
-                    installZookeeper.sendEndMessage += TellEnd;
-                    ParameterizedThreadStart zookeeperThread = new ParameterizedThreadStart(installZookeeper.Load);
-                    Thread thread = new Thread(zookeeperThread);
-                    thread.IsBackground = true;
-                    thread.Start();
+                /* if (ZooKeeperServerStatus())
+                 {
+                     zookeeperLabel.Text = "normal";
+                 }
+                 else
+                 {
+                     zookeeperLabel.Text = "abnormal";
+                     System.Windows.Forms.Timer zookeeperTimer = new System.Windows.Forms.Timer();
+                     zookeeperTimer.Tick += new EventHandler(ZookeeperTimerEvent);
+                     zookeeperTimer.Enabled = true;
+                     zookeeperTimer.Start();
+                     InstallZookeeper installZookeeper = new InstallZookeeper();
+                     installZookeeper.sendEndMessage += TellEnd;
+                     ParameterizedThreadStart zookeeperThread = new ParameterizedThreadStart(installZookeeper.Load);
+                     Thread thread = new Thread(zookeeperThread);
+                     thread.IsBackground = true;
+                     thread.Start();
 
-                }
-                if (KafkaServiceStatus())
-                {
-                    kafkaLabel.Text = "normal";
-                    //kafka create topic
-                    Thread thKafkaThread = new Thread(() => KafkaCreatTopicThread());
-                    thKafkaThread.IsBackground = true;
-                    thKafkaThread.Start();
-                }
-                else
-                {
-                    kafkaLabel.Text = "abnormal";
-                    kafkaTimer.Enabled = true;
-                    kafkaTimer.Start();
-                    InstallKafka installKafka = new InstallKafka();
-                    installKafka.sendEndMessage += TellEnd;
-                    ParameterizedThreadStart kafkaThread = new ParameterizedThreadStart(installKafka.Load);
-                    Thread thread = new Thread(kafkaThread);
-                    thread.IsBackground = true;
-                    thread.Start();
-                }
-                if (MysqlServiceStatus())
-                {
-                    mysqlLabel.Text = "normal";
-                }
-                else
-                {
-                    mysqlLabel.Text = "abnormal";
-                    mySqlTimer.Enabled = true;
-                    mySqlTimer.Start();
-                    InstallMySQL installMySQL = new InstallMySQL();
-                    installMySQL.sendEndMes += TellEnd;
-                    ParameterizedThreadStart mySqlThread = new ParameterizedThreadStart(installMySQL.Load);
-                    Thread thread = new Thread(mySqlThread);
-                    thread.IsBackground = true;
-                    thread.Start();
-                }
+                 }
+                 if (KafkaServiceStatus())
+                 {
+                     kafkaLabel.Text = "normal";
+                     //kafka create topic
+                     Thread thKafkaThread = new Thread(() => KafkaCreatTopicThread());
+                     thKafkaThread.IsBackground = true;
+                     thKafkaThread.Start();
+                 }
+                 else
+                 {
+                     kafkaLabel.Text = "abnormal";
+                     kafkaTimer.Enabled = true;
+                     kafkaTimer.Start();
+                     InstallKafka installKafka = new InstallKafka();
+                     installKafka.sendEndMessage += TellEnd;
+                     ParameterizedThreadStart kafkaThread = new ParameterizedThreadStart(installKafka.Load);
+                     Thread thread = new Thread(kafkaThread);
+                     thread.IsBackground = true;
+                     thread.Start();
+                 }
+                 if (MysqlServiceStatus())
+                 {
+                     mysqlLabel.Text = "normal";
+                 }
+                 else
+                 {
+                     mysqlLabel.Text = "abnormal";
+                     mySqlTimer.Enabled = true;
+                     mySqlTimer.Start();
+                     InstallMySQL installMySQL = new InstallMySQL();
+                     installMySQL.sendEndMes += TellEnd;
+                     ParameterizedThreadStart mySqlThread = new ParameterizedThreadStart(installMySQL.Load);
+                     Thread thread = new Thread(mySqlThread);
+                     thread.IsBackground = true;
+                     thread.Start();
+                 }
 
-                string[] strArr = { "FrpWindowsService", "ZookeeperWindowsService", "KafkaWindowsService", "MysqlWindowsService" };
-                //install win service
-                foreach (string str in strArr)
-                {
-                    if (this.IsServiceExisted(str))
-                    {
-                        this.ServiceStart(str);
-                    }
-                }
-                timer1.Start();*/
+                 string[] strArr = { "FrpWindowsService", "ZookeeperWindowsService", "KafkaWindowsService", "MysqlWindowsService" };
+                 //install win service
+                 foreach (string str in strArr)
+                 {
+                     if (this.IsServiceExisted(str))
+                     {
+                         this.ServiceStart(str);
+                     }
+                 }
+                 timer1.Start();*/
             }
         }
         #endregion
@@ -168,15 +169,23 @@ namespace setup
 
         #region frp channel
 
-        public bool OpenChannel()
+        public bool FrpServiceStatus()
         {
-
             var ini = new IniFile();
             ini.Load(currentDir + "baseDir\\frp\\frpc.ini");
             string ip = ini["common"]["server_addr"].ToString().TrimStart().TrimEnd();
             string port = ini["common"]["server_port"].ToString();
-            return FrpPortInUse(ip, port);
-
+            if (FrpPortInUse(ip, port)) 
+            {
+                var iniFrp = new IniFile();
+                iniFrp.Load(currentDir + "baseDir\\frp\\FrpWindowsServiceStatus.ini");
+                string frpStatus = ini["frpServiceStatus"]["runing"].ToString().TrimStart().TrimEnd();
+                if (frpStatus=="true") 
+                {
+                    return true;
+                } 
+            }
+            return false;
         }
         #endregion
 
@@ -304,41 +313,41 @@ namespace setup
         #region timer  monitor  service
         private void timer1_Tick(object sender, EventArgs e)
         {
-           /* if (ZooKeeperServerStatus())
-            {
-                zookeeperLabel.Text = "normal";
-            }
-            else
-            {
-                zookeeperLabel.Text = "abnormal";
-                if (this.IsServiceExisted("ZookeeperWindowsService"))
-                {
-                    this.ServiceStart("ZookeeperWindowsService");
-                }
-            }
-            if (KafkaServiceStatus())
-            {
-                kafkaLabel.Text = "normal";
-            }
-            else
-            {
-                kafkaLabel.Text = "abnormal";
-                if (this.IsServiceExisted("KafkaWindowsService"))
-                {
-                    using (ServiceController control = new ServiceController("KafkaWindowsService"))
-                    {
-                        if (control.Status == ServiceControllerStatus.Running)
-                        {
-                            control.Stop();
-                        }
-                        if (control.Status == ServiceControllerStatus.Stopped)
-                        {
-                            control.Start();
-                            Thread.Sleep(7000);
-                        }
-                    }
-                }
-            }*/
+            /* if (ZooKeeperServerStatus())
+             {
+                 zookeeperLabel.Text = "normal";
+             }
+             else
+             {
+                 zookeeperLabel.Text = "abnormal";
+                 if (this.IsServiceExisted("ZookeeperWindowsService"))
+                 {
+                     this.ServiceStart("ZookeeperWindowsService");
+                 }
+             }
+             if (KafkaServiceStatus())
+             {
+                 kafkaLabel.Text = "normal";
+             }
+             else
+             {
+                 kafkaLabel.Text = "abnormal";
+                 if (this.IsServiceExisted("KafkaWindowsService"))
+                 {
+                     using (ServiceController control = new ServiceController("KafkaWindowsService"))
+                     {
+                         if (control.Status == ServiceControllerStatus.Running)
+                         {
+                             control.Stop();
+                         }
+                         if (control.Status == ServiceControllerStatus.Stopped)
+                         {
+                             control.Start();
+                             Thread.Sleep(7000);
+                         }
+                     }
+                 }
+             }*/
         }
         #endregion
 
@@ -432,7 +441,7 @@ namespace setup
             timerCount++;
         }
 
-        public  void FrpTimerEvent(object sender, EventArgs e)
+        public void FrpTimerEvent(object sender, EventArgs e)
         {
             if (timerCount % 6 == 1)
             {
@@ -459,10 +468,20 @@ namespace setup
                 frpStatusLabel.Text = "......";
             }
             timerCount++;
-            //注册本地frp服务
-            //启动本地frp服务
-            //
+            //install frp service and  start frp service 
+            if (!Common.IsServiceExisted("FrpWindowsService"))
+            {
+                Common.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
+            }
+            if (Common.IsServiceExisted("FrpWindowsService"))
+            {
+                Common.ServiceStart("FrpWindowsService");
+            }
+            //if (FrpServiceStatus()) 
+            //{
+              //  frpLabel.Text = "normal";
+            //} 
         }
-        
+
     }
 }
