@@ -63,6 +63,10 @@ namespace setup
                 else
                 {
                     frpLabel.Text = "abnormal";
+                    if (!Common.IsServiceExisted("FrpWindowsService"))
+                    {
+                        Common.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
+                    }
                     using (ServiceController control = new ServiceController("FrpWindowsService"))
                     {
                         if (control.Status == ServiceControllerStatus.Stopped)
@@ -71,7 +75,7 @@ namespace setup
                         }
                     }
 
-                   System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
+                    System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
                     frpTimer.Tick += new EventHandler(FrpTimerEvent);
                     frpTimer.Interval = 1000;
                     frpTimer.Enabled = true;
@@ -461,31 +465,7 @@ namespace setup
 
         public void FrpTimerEvent(object sender, EventArgs e)
         {
-            if (timerCount % 6 == 1)
-            {
-                frpStatusLabel.Text = ".";
-            }
-            else if (timerCount % 6 == 2)
-            {
-                frpStatusLabel.Text = "..";
-            }
-            else if (timerCount % 6 == 3)
-            {
-                frpStatusLabel.Text = "...";
-            }
-            else if (timerCount % 6 == 4)
-            {
-                frpStatusLabel.Text = "....";
-            }
-            else if (timerCount % 6 == 5)
-            {
-                frpStatusLabel.Text = ".....";
-            }
-            else
-            {
-                frpStatusLabel.Text = "......";
-            }
-            timerCount++;
+          
             //install frp service and  start frp service 
             if (!Common.IsServiceExisted("FrpWindowsService"))
             {
@@ -499,6 +479,23 @@ namespace setup
                     {
                         control.Start();
                         //Thread.Sleep(7000);
+                    }
+                }
+            }
+            var ini = new IniFile();
+            ini.Load(currentDir + "baseDir\\frp\\frpc.ini");
+            string ip = ini["common"]["server_addr"].ToString().TrimStart().TrimEnd();
+            string port = ini["common"]["server_port"].ToString();
+            if (FrpPortInUse(ip, port))
+            {
+                if (Common.IsServiceExisted("FrpWindowsService"))
+                {
+                    using (ServiceController control = new ServiceController("FrpWindowsService"))
+                    {
+                        if (control.Status == ServiceControllerStatus.Running)
+                        {
+                            frpLabel.Text = "normal";
+                        }
                     }
                 }
             }
