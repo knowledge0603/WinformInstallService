@@ -35,6 +35,7 @@ namespace setup
             proc.StandardInput.WriteLine("exit");
             proc.StandardOutput.ReadToEnd();
             proc.Close();
+            sendEndMes("process end");
         }
         #endregion
     }

@@ -22,6 +22,7 @@ namespace setup
         //Determine if the basedir folder exists
         static string currentDir = System.AppDomain.CurrentDomain.BaseDirectory;
         bool sendMessageStatus = false;
+        bool mysqlMessageStatus = false;
         System.Timers.Timer zookeeperTimer = new System.Timers.Timer();
         System.Timers.Timer kafkaTimer = new System.Timers.Timer();
         System.Timers.Timer mySqlTimer = new System.Timers.Timer();
@@ -67,27 +68,54 @@ namespace setup
                     {
                         Common.InstallService(AppDomain.CurrentDomain.BaseDirectory + "baseDir\\frp\\FrpWindowsService.exe");
                     }
-                    using (ServiceController control = new ServiceController("FrpWindowsService"))
+                    else 
                     {
-                        if (control.Status == ServiceControllerStatus.Stopped)
+                        using (ServiceController control = new ServiceController("FrpWindowsService"))
                         {
-                            control.Start();
+                            if (control.Status == ServiceControllerStatus.Stopped)
+                            {
+                                control.Start();
+                            }
                         }
                     }
-
                     System.Windows.Forms.Timer frpTimer = new System.Windows.Forms.Timer();
                     frpTimer.Tick += new EventHandler(FrpTimerEvent);
                     frpTimer.Interval = 1000;
                     frpTimer.Enabled = true;
                     frpTimer.Start();
-                    /* InstallFrp installFrp = new InstallFrp();
-                    installFrp.sendEndMes += TellEnd;
-                    ParameterizedThreadStart frpThread = new ParameterizedThreadStart(installFrp.Load);
-                    Thread thread = new Thread(frpThread);
-                    thread.IsBackground = true;
-                    thread.Start();
-                    WriteLogToFile("install  frp  service thread start ");*/
+                }
 
+                if (MysqlServiceStatus())
+                {
+                    mysqlLabel.Text = "normal";
+                }
+                else
+                {
+                    mysqlLabel.Text = "abnormal";
+                    if (!Common.IsServiceExisted("MysqlWindowsService"))
+                    {
+                        InstallMySQL installMySQL = new InstallMySQL();
+                        installMySQL.sendEndMes += TellEnd;
+                        ParameterizedThreadStart mySqlThread = new ParameterizedThreadStart(installMySQL.Load);
+                        Thread thread = new Thread(mySqlThread);
+                        thread.IsBackground = true;
+                        thread.Start();
+                    }
+                    else 
+                    {
+                        using (ServiceController control = new ServiceController("MysqlWindowsService"))
+                        {
+                            if (control.Status == ServiceControllerStatus.Stopped)
+                            {
+                                control.Start();
+                            }
+                        }
+                    }
+                    System.Windows.Forms.Timer mySqlTimer = new System.Windows.Forms.Timer();
+                    mySqlTimer.Tick += new EventHandler(MysqlTimerEvent);
+                    mySqlTimer.Interval = 1000;
+                    mySqlTimer.Enabled = true;
+                    mySqlTimer.Start();
                 }
                 //zookeeper
                 /* if (ZooKeeperServerStatus())
@@ -129,22 +157,7 @@ namespace setup
                      thread.IsBackground = true;
                      thread.Start();
                  }
-                 if (MysqlServiceStatus())
-                 {
-                     mysqlLabel.Text = "normal";
-                 }
-                 else
-                 {
-                     mysqlLabel.Text = "abnormal";
-                     mySqlTimer.Enabled = true;
-                     mySqlTimer.Start();
-                     InstallMySQL installMySQL = new InstallMySQL();
-                     installMySQL.sendEndMes += TellEnd;
-                     ParameterizedThreadStart mySqlThread = new ParameterizedThreadStart(installMySQL.Load);
-                     Thread thread = new Thread(mySqlThread);
-                     thread.IsBackground = true;
-                     thread.Start();
-                 }
+                 
 
                  string[] strArr = { "FrpWindowsService", "ZookeeperWindowsService", "KafkaWindowsService", "MysqlWindowsService" };
                  //install win service
@@ -430,6 +443,7 @@ namespace setup
         private void TellEnd(string mes)
         {
             sendMessageStatus = true;
+            mysqlMessageStatus = true;
         }
         #endregion
 
@@ -498,6 +512,14 @@ namespace setup
                         }
                     }
                 }
+            }
+        }
+
+        public void MysqlTimerEvent(object sender, EventArgs e)
+        {
+            if (PortInUse(3306)) 
+            {
+                mysqlLabel.Text = "normal";
             }
         }
 
